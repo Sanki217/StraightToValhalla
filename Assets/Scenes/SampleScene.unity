@@ -3560,61 +3560,94 @@ MonoBehaviour:
   - {fileID: 1308244207}
   - {fileID: 2007243062}
   maxMana: 100
-  manaRegenRate: 0.1
+  manaRegenRate: 1
   spellPrefabs:
   - prefab: {fileID: 7743695568122230168, guid: 58aa278d40996d84e9e471e6d863b6d7, type: 3}
-    manaCost: 1
-    damage: 1
-  - prefab: {fileID: 7743695568122230168, guid: 31842ed4fa00f2b4e8aa1c93f7921aa9, type: 3}
-    manaCost: 3
-    damage: 3
-  - prefab: {fileID: 7743695568122230168, guid: 48b501b3b3589b14280f615d6c4a7056, type: 3}
-    manaCost: 1
-    damage: 0
-  - prefab: {fileID: 7743695568122230168, guid: 38a6f5387ece3f040b3f309fa8002307, type: 3}
     manaCost: 10
+    damage: 1
+    range: 0.3
+    lifetime: 3
+  - prefab: {fileID: 7743695568122230168, guid: 31842ed4fa00f2b4e8aa1c93f7921aa9, type: 3}
+    manaCost: 15
+    damage: 3
+    range: 1
+    lifetime: 3
+  - prefab: {fileID: 7743695568122230168, guid: 48b501b3b3589b14280f615d6c4a7056, type: 3}
+    manaCost: 5
+    damage: 0
+    range: 0.2
+    lifetime: 3
+  - prefab: {fileID: 7743695568122230168, guid: 38a6f5387ece3f040b3f309fa8002307, type: 3}
+    manaCost: 30
     damage: 10
+    range: 2
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 0a65e722a2eabb4489cdc0438df94eb1, type: 3}
     manaCost: 1
     damage: 1
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 59e832c330cb22c438dd3b410412206f, type: 3}
     manaCost: 3
     damage: 3
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: c44470e120626f742a4724bd55bcbe14, type: 3}
     manaCost: 1
     damage: 0
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: a990258cacda80149ab6872882edf15b, type: 3}
     manaCost: 10
     damage: 10
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 6e208dcbf61a4b54e92ad7024771c74f, type: 3}
     manaCost: 1
     damage: 1
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 979b5df4fef13dd4080a53354c4bb16a, type: 3}
     manaCost: 3
     damage: 3
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 742a05c1d8247fb40bc0f38499209906, type: 3}
     manaCost: 1
     damage: 0
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: fb71605a157adca4d98fb36c9cd333b4, type: 3}
     manaCost: 10
     damage: 10
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 40fa3f4a8ccdccf4aa3336fb633a925b, type: 3}
     manaCost: 1
     damage: 1
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 0f9a70fcbd9703841a87b98a4f6f0b9c, type: 3}
     manaCost: 3
     damage: 3
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: 97ddb2faa54f69c4b9c65f0045df7eba, type: 3}
     manaCost: 1
     damage: 0
+    range: 1
+    lifetime: 3
   - prefab: {fileID: 7743695568122230168, guid: f05cf4703525a974dacac516a0e83c45, type: 3}
     manaCost: 10
     damage: 10
+    range: 1
+    lifetime: 3
   effectCooldownDurations:
   - 1
   - 2
   - 3
   - 5
+  rangeIndicatorPrefab: {fileID: 3115760777035477997, guid: d18f64428bb97b444917289dd4b3c134, type: 3}
 --- !u!4 &1750985099
 Transform:
   m_ObjectHideFlags: 0

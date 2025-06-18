@@ -11,15 +11,17 @@ public class SpellManager : MonoBehaviour
     [System.Serializable]
     public class SpellData
     {
-        public GameObject prefab;  // Now unique prefab per spell
+        public GameObject prefab;
         public int manaCost = 10;
         public int damage = 10;
+        public float range = 1f; // NEW: range for indicator
+        public float lifetime = 3f; // NEW: lifetime for auto-destroy
     }
 
     public TextMeshProUGUI elementNumberText;
     public TextMeshProUGUI effectNumberText;
     public TextMeshProUGUI manaText;
-    public TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[4]; // 0=Single, 1=AoE, etc.
+    public TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[4];
 
     private Element? selectedElement = null;
     private Effect? selectedEffect = null;
@@ -28,22 +30,25 @@ public class SpellManager : MonoBehaviour
     private Color defaultColor = Color.white;
 
     public int maxMana = 100;
-    private int currentMana;
-
+    private float currentMana; // Change to float for smoother regen
     public float manaRegenRate = 5f; // Mana per second
 
-    public List<SpellData> spellPrefabs = new List<SpellData>(); // 16 entries → assigned in Inspector
+    public List<SpellData> spellPrefabs = new List<SpellData>();
     private Dictionary<(Element, Effect), SpellData> spellBook = new Dictionary<(Element, Effect), SpellData>();
 
     private float[] effectCooldownTimers = new float[4];
     public float[] effectCooldownDurations = new float[4] { 1f, 2f, 3f, 5f };
+
+    [Header("Range Indicator")]
+    public GameObject rangeIndicatorPrefab; // Assign flat circle prefab in Inspector
+    private GameObject activeRangeIndicator;
 
     private void Start()
     {
         currentMana = maxMana;
         UpdateManaUI();
 
-        // Assign all 16 spells → Match order manually in Inspector or write helper if needed
+        // Load spells into dictionary
         int i = 0;
         foreach (Element elem in System.Enum.GetValues(typeof(Element)))
         {
@@ -53,12 +58,25 @@ public class SpellManager : MonoBehaviour
                 i++;
             }
         }
+
+        activeRangeIndicator = Instantiate(rangeIndicatorPrefab);
+        activeRangeIndicator.SetActive(false);
     }
 
     private void Update()
     {
         UpdateCooldowns();
         RegenerateMana();
+        HandleCasting();
+        HandleRangeIndicator();
+    }
+
+    private void HandleCasting()
+    {
+        if (Input.GetMouseButtonDown(1)) // Right Click Reset
+        {
+            ResetSelection();
+        }
 
         if (selectedElement.HasValue && selectedEffect.HasValue && Input.GetMouseButtonDown(0))
         {
@@ -76,7 +94,9 @@ public class SpellManager : MonoBehaviour
 
                     if (currentMana >= spell.manaCost)
                     {
-                        Instantiate(spell.prefab, spawnPos, Quaternion.identity);
+                        GameObject spellGO = Instantiate(spell.prefab, spawnPos, Quaternion.identity);
+                        Destroy(spellGO, spell.lifetime); // Auto-destroy after X seconds
+
                         currentMana -= spell.manaCost;
                         UpdateManaUI();
                         effectCooldownTimers[(int)effect] = effectCooldownDurations[(int)effect];
@@ -96,7 +116,7 @@ public class SpellManager : MonoBehaviour
     {
         if (currentMana < maxMana)
         {
-            currentMana += Mathf.CeilToInt(manaRegenRate * Time.deltaTime);
+            currentMana += manaRegenRate * Time.deltaTime;
             if (currentMana > maxMana) currentMana = maxMana;
             UpdateManaUI();
         }
@@ -110,6 +130,30 @@ public class SpellManager : MonoBehaviour
                 effectCooldownTimers[i] -= Time.deltaTime;
 
             cooldownTexts[i].text = effectCooldownTimers[i] > 0 ? Mathf.Ceil(effectCooldownTimers[i]).ToString() : "";
+        }
+    }
+
+    private void HandleRangeIndicator()
+    {
+        if (selectedElement.HasValue && selectedEffect.HasValue)
+        {
+            var key = (selectedElement.Value, selectedEffect.Value);
+            SpellData spell = spellBook[key];
+
+            activeRangeIndicator.SetActive(true);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+            {
+                Vector3 pos = hit.point;
+                pos.y = 0;
+                activeRangeIndicator.transform.position = pos;
+                activeRangeIndicator.transform.localScale = new Vector3(spell.range, 1f, spell.range);
+            }
+        }
+        else
+        {
+            activeRangeIndicator.SetActive(false);
         }
     }
 
@@ -134,6 +178,7 @@ public class SpellManager : MonoBehaviour
         elementNumberText.text = "0";
         effectNumberText.text = "0";
         UpdateNumberColors();
+        activeRangeIndicator.SetActive(false);
     }
 
     private void UpdateNumberColors()
@@ -147,16 +192,6 @@ public class SpellManager : MonoBehaviour
 
     private void UpdateManaUI()
     {
-        manaText.text = $"Mana: {currentMana}/{maxMana}";
-    }
-
-    public void UpgradeSpell(Element element, Effect effect, int manaCostReduction, int damageIncrease)
-    {
-        var key = (element, effect);
-        if (spellBook.ContainsKey(key))
-        {
-            spellBook[key].manaCost = Mathf.Max(1, spellBook[key].manaCost - manaCostReduction);
-            spellBook[key].damage += damageIncrease;
-        }
+        manaText.text = $"Mana: {Mathf.FloorToInt(currentMana)}/{maxMana}";
     }
 }
