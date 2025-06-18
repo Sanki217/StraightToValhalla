@@ -122,11 +122,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 957d7fab4d938c84c8d4e0521f6b5887, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  moveSpeed: 2
+  maxHealth: 20
+  moveSpeed: 1
   damage: 10
   attackSpeed: 1
-  attackRange: 1.5
+  attackRange: 4
   healthBarCanvas: {fileID: 3745268824973231567}
   healthBarFill: {fileID: 1856346457848677368}
 --- !u!1 &1891023008538158972
