@@ -95,6 +95,11 @@ public class SpellManager : MonoBehaviour
                     if (currentMana >= spell.manaCost)
                     {
                         GameObject spellGO = Instantiate(spell.prefab, spawnPos, Quaternion.identity);
+                        SpellEffect effectScript = spellGO.GetComponent<SpellEffect>();
+                        if (effectScript != null)
+                        {
+                            effectScript.damage = spell.damage;
+                        }
                         Destroy(spellGO, spell.lifetime); // Auto-destroy after X seconds
 
                         currentMana -= spell.manaCost;
@@ -140,15 +145,24 @@ public class SpellManager : MonoBehaviour
             var key = (selectedElement.Value, selectedEffect.Value);
             SpellData spell = spellBook[key];
 
-            activeRangeIndicator.SetActive(true);
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Effect effect = selectedEffect.Value;
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+            if (currentMana >= spell.manaCost && effectCooldownTimers[(int)effect] <= 0)
             {
-                Vector3 pos = hit.point;
-                pos.y = 0;
-                activeRangeIndicator.transform.position = pos;
-                activeRangeIndicator.transform.localScale = new Vector3(spell.range, 1f, spell.range);
+                activeRangeIndicator.SetActive(true);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+                {
+                    Vector3 pos = hit.point;
+                    pos.y = 0;
+                    activeRangeIndicator.transform.position = pos;
+                    activeRangeIndicator.transform.localScale = new Vector3(spell.range, 1f, spell.range);
+                }
+            }
+            else
+            {
+                activeRangeIndicator.SetActive(false);
             }
         }
         else
@@ -156,6 +170,7 @@ public class SpellManager : MonoBehaviour
             activeRangeIndicator.SetActive(false);
         }
     }
+
 
     public void SelectElement(int index)
     {

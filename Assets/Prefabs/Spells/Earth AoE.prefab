@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6889175341739324341}
   - component: {fileID: 6734376504769362947}
+  - component: {fileID: 7405155177967427995}
   m_Layer: 0
   m_Name: Earth AoE
   m_TagString: Untagged
@@ -87,3 +88,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &7405155177967427995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7743695568122230168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bfbaa01ff09a32479fedf88dcb5e8f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  tickInterval: 0.2
