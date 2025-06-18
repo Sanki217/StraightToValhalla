@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
@@ -6,17 +6,16 @@ using System.Collections.Generic;
 public class SpellManager : MonoBehaviour
 {
     public enum Element { Fire, Water, Wind, Earth }
-    public enum Effect { Single, AoE, Utility, Defense }
+    public enum Effect { Single, AoE, Utility, Ultimate }
 
     [System.Serializable]
     public class SpellData
     {
+        public GameObject prefab;  // Now unique prefab per spell
         public int manaCost = 10;
         public int damage = 10;
-        // Add other effect-specific properties later
     }
 
-    public GameObject spellPrefab;
     public TextMeshProUGUI elementNumberText;
     public TextMeshProUGUI effectNumberText;
     public TextMeshProUGUI manaText;
@@ -31,25 +30,27 @@ public class SpellManager : MonoBehaviour
     public int maxMana = 100;
     private int currentMana;
 
+    public float manaRegenRate = 5f; // Mana per second
+
+    public List<SpellData> spellPrefabs = new List<SpellData>(); // 16 entries → assigned in Inspector
     private Dictionary<(Element, Effect), SpellData> spellBook = new Dictionary<(Element, Effect), SpellData>();
-    private float[] effectCooldownTimers = new float[4]; // Cooldowns for Single, AoE, Utility, Defense
-    public float[] effectCooldownDurations = new float[4] { 1f, 2f, 3f, 5f }; // Example: 1s Single, 2s AoE, etc.
+
+    private float[] effectCooldownTimers = new float[4];
+    public float[] effectCooldownDurations = new float[4] { 1f, 2f, 3f, 5f };
 
     private void Start()
     {
         currentMana = maxMana;
         UpdateManaUI();
 
-        // Initialize all 16 spells with default values (can be customized)
+        // Assign all 16 spells → Match order manually in Inspector or write helper if needed
+        int i = 0;
         foreach (Element elem in System.Enum.GetValues(typeof(Element)))
         {
             foreach (Effect eff in System.Enum.GetValues(typeof(Effect)))
             {
-                spellBook[(elem, eff)] = new SpellData()
-                {
-                    manaCost = Random.Range(5, 21), // Example: random mana cost 5-20
-                    damage = Random.Range(10, 31),  // Example: random damage 10-30
-                };
+                spellBook[(elem, eff)] = spellPrefabs[i];
+                i++;
             }
         }
     }
@@ -57,6 +58,7 @@ public class SpellManager : MonoBehaviour
     private void Update()
     {
         UpdateCooldowns();
+        RegenerateMana();
 
         if (selectedElement.HasValue && selectedEffect.HasValue && Input.GetMouseButtonDown(0))
         {
@@ -74,7 +76,7 @@ public class SpellManager : MonoBehaviour
 
                     if (currentMana >= spell.manaCost)
                     {
-                        CastSpell(spawnPos, spell);
+                        Instantiate(spell.prefab, spawnPos, Quaternion.identity);
                         currentMana -= spell.manaCost;
                         UpdateManaUI();
                         effectCooldownTimers[(int)effect] = effectCooldownDurations[(int)effect];
@@ -90,32 +92,14 @@ public class SpellManager : MonoBehaviour
         }
     }
 
-    private void CastSpell(Vector3 position, SpellData spell)
+    private void RegenerateMana()
     {
-        GameObject s = Instantiate(spellPrefab, position, Quaternion.identity);
-        SpriteRenderer sr = s.GetComponent<SpriteRenderer>();
-
-        sr.color = selectedElement switch
+        if (currentMana < maxMana)
         {
-            Element.Fire => Color.red,
-            Element.Water => Color.blue,
-            Element.Wind => Color.green,
-            Element.Earth => new Color(0.5f, 0.25f, 0f),
-            _ => Color.white,
-        };
-
-        float size = selectedEffect switch
-        {
-            Effect.Single => 0.5f,
-            Effect.AoE => 2f,
-            Effect.Utility => 1f,
-            Effect.Defense => 1.5f,
-            _ => 1f,
-        };
-
-        s.transform.localScale = Vector3.one * size;
-        Destroy(s, 2f);
-        Debug.Log($"Cast spell: {selectedElement} {selectedEffect} | Damage: {spell.damage} | ManaCost: {spell.manaCost}");
+            currentMana += Mathf.CeilToInt(manaRegenRate * Time.deltaTime);
+            if (currentMana > maxMana) currentMana = maxMana;
+            UpdateManaUI();
+        }
     }
 
     private void UpdateCooldowns()
@@ -166,7 +150,6 @@ public class SpellManager : MonoBehaviour
         manaText.text = $"Mana: {currentMana}/{maxMana}";
     }
 
-    // Example of upgrading a single spell:
     public void UpgradeSpell(Element element, Effect effect, int manaCostReduction, int damageIncrease)
     {
         var key = (element, effect);
